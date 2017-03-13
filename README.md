@@ -41,7 +41,7 @@ optional arguments:
 
 ### Report mode
 ```
-    python kernel_exceptions.py --expires_in=1 --report
+    python kernel_exceptions.py --report
 ```
 
 ### Execute mode (add exceptions for non-running kernel packages)
