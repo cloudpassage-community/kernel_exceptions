@@ -27,10 +27,16 @@ class VersionComparator(object):
         return re.split('\.|-', s)
 
     def compare(self, a, b):
-        if self.evr(a) == self.evr(b):
+        evr_a = self.evr(a)
+        evr_b = self.evr(b)
+        if evr_a == evr_b:
             a = self.normalize(self.cut(a))
             b = self.normalize(self.cut(b))
             if a > b:
                 return True
             else:
                 return False
+        elif evr_a > evrb:
+            return True
+        else:
+            return False
