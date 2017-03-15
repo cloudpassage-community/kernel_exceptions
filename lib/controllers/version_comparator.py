@@ -36,7 +36,7 @@ class VersionComparator(object):
                 return True
             else:
                 return False
-        elif evr_a > evrb:
+        elif evr_a > evr_b:
             return True
         else:
             return False
