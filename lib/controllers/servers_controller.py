@@ -13,7 +13,7 @@ class ServersController(object):
         found = []
         vulns = self.api.get("/v1/servers/%s/svm" % server_id)
         for vuln in vulns['scan']['findings']:
-            match = re.search('^Kernel$', vuln['package_name'])
+            match = re.search('^[kK]ernel(\.|$)', vuln['package_name'])
             if match:
                 found.append(vuln)
         return found
