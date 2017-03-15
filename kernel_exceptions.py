@@ -7,13 +7,15 @@ class KernelExceptions(object):
         self.options = Options()
         self.sc = ServersController()
         self.ec = ExceptionsController()
+        self.vc = VersionComparator()
 
-    def report(self, srv, kernels):
-        for kernel in kernels:
-            msg = "server %s has the following extra kernels %s%s" % (srv['id'],
-                                                                      kernel['package_name'],
-                                                                      kernel['package_version'])
+    def report(self, srv, extra_kernels, running_kernel):
+        print 'server %s %s is running kernel version %s' % (srv['id'], srv['server_label'], running_kernel)
+        for kernel in extra_kernels:
+            msg = "server %s %s has extra %s %s" % (srv['id'], srv['server_label'], kernel['package_name'], kernel['package_version'])
             print msg
+            if kernel['status'] == 'bad':
+                print '%s %s is vulnerable' % (kernel['package_name'], kernel['package_version'])
 
     def guard(self):
         if not self.options['report'] and not self.options['execute']:
@@ -27,15 +29,19 @@ class KernelExceptions(object):
         self.guard()
         total = []
         for srv in self.servers.list_all():
-            kernels = self.sc.extra_kernels(srv['id'])
-            if kernels:
-                total.append(kernels)
-                if self.options['execute'] and kernels:
-                    self.report(srv, kernels)
-                    self.ec.add_exceptions(srv, kernels)
-                    print 'Exceptions for non-running vulnerable kernel packages are added.'
+            srv_v2 = self.sc.server_show(srv['id'])['server']
+            installed_kernels = self.sc.installed_kernels(srv['id'])
+            extra_kernels = self.sc.extra_kernels(installed_kernels, srv_v2)
+            if extra_kernels:
+                total.append(extra_kernels)
+                if self.options['execute'] and extra_kernels:
+                    self.report(srv, extra_kernels, srv_v2['kernel_release'])
+                    warn = self.sc.version_compare(installed_kernels, srv_v2['kernel_release'])
+                    if not warn:
+                        self.ec.add_exceptions(srv, extra_kernels)
+                        print 'Exceptions for non-running vulnerable kernel packages are added.'
                 else:
-                    self.report(srv, kernels)
+                    self.report(srv, extra_kernels, srv_v2['kernel_release'])
         if not total:
             print 'No servers with more than one Kernel package has been found'
 

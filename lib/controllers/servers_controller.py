@@ -1,10 +1,12 @@
 from ..classes.api import Api
+from version_comparator import VersionComparator
 import re
 
 
 class ServersController(object):
     def __init__(self):
         self.api = Api()
+        self.vc = VersionComparator()
 
     def server_show(self, server_id):
         return self.api.get("/v2/servers/%s" % server_id)
@@ -18,10 +20,17 @@ class ServersController(object):
                 found.append(vuln)
         return found
 
-    def extra_kernels(self, server_id):
-        server = self.server_show(server_id)['server']
-        kernels = self.installed_kernels(server_id)
-        for kernel in kernels:
+    def extra_kernels(self, installed_kernels, server):
+        for kernel in installed_kernels:
             if kernel['package_version'] in server['kernel_release']:
-                kernels.remove(kernel)
-        return kernels
+                installed_kernels.remove(kernel)
+        return installed_kernels
+
+    def version_compare(self, kernels, running_kernel):
+        flag = False
+        for kernel in kernels:
+            if self.vc.compare(kernel['package_version'], running_kernel):
+                flag = True
+                msg = 'warning: newer kernel %s is installed but not running' % kernel['package_version']
+                print msg
+        return flag
