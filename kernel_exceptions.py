@@ -10,12 +10,21 @@ class KernelExceptions(object):
         self.vc = VersionComparator()
 
     def report(self, srv, extra_kernels, running_kernel):
-        print 'server %s %s is running kernel version %s' % (srv['id'], srv['server_label'], running_kernel)
+        label = self.srv_label(srv)
+        print 'server %s %s is running kernel version %s' % (srv['id'], label, running_kernel)
         for kernel in extra_kernels:
-            msg = "server %s %s has extra %s %s" % (srv['id'], srv['server_label'], kernel['package_name'], kernel['package_version'])
+            msg = "server %s %s has extra %s %s" % (srv['id'], label, kernel['package_name'], kernel['package_version'])
             print msg
             if kernel['status'] == 'bad':
                 print '%s %s is vulnerable' % (kernel['package_name'], kernel['package_version'])
+
+    @staticmethod
+    def srv_label(srv):
+        if srv['server_label']:
+            label = srv['server_label']
+        else:
+            label = srv['hostname']
+        return label
 
     def guard(self):
         if not self.options['report'] and not self.options['execute']:
