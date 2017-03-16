@@ -41,10 +41,10 @@ class VersionComparator(object):
             if i != j:
                 results.append(int(i) > int(j))
 
-        if not results:
-            return False
-        else:
+        if results:
             return True
+        else:
+            return False
 
     def compare(self, a, b):
         evr_a = self.evr(a)
