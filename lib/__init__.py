@@ -3,5 +3,6 @@ from classes.servers import Servers
 from controllers.servers_controller import ServersController
 from controllers.sva_exceptions_controller import ExceptionsController
 from controllers.version_comparator import VersionComparator
+from controllers.report_controller import Reporter
 from config import CONFIG
 from options import Options

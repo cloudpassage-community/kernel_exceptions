@@ -20,17 +20,18 @@ class ServersController(object):
                 found.append(vuln)
         return found
 
-    def extra_kernels(self, installed_kernels, server):
+    def version_compare(self, kernels, running_kernel):
+        msg = ""
+        for kernel in kernels:
+            if self.vc.compare(kernel['package_version'], running_kernel):
+                msg = 'warning: newer kernel %s is installed but not running' % kernel['package_version']
+                print msg
+        return msg
+
+    @staticmethod
+    def extra_kernels(installed_kernels, server):
         for kernel in installed_kernels:
             if kernel['package_version'] in server['kernel_release']:
                 installed_kernels.remove(kernel)
         return installed_kernels
 
-    def version_compare(self, kernels, running_kernel):
-        flag = False
-        for kernel in kernels:
-            if self.vc.compare(kernel['package_version'], running_kernel):
-                flag = True
-                msg = 'warning: newer kernel %s is installed but not running' % kernel['package_version']
-                print msg
-        return flag

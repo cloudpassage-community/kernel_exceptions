@@ -23,16 +23,17 @@ class ExceptionsController(object):
     def create_exception(self, body):
         return self.api.post('/v1/cve_exceptions', body)
 
-    def cve_entries(self, kernel):
-        cves = []
-        for cve_entry in kernel['cve_entries']:
-            cves.append(cve_entry['cve_entry'])
-        return cves
-
     def add_exceptions(self, srv, kernels):
         for kernel in kernels:
             body = self.form(package_name=kernel['package_name'],
                              package_version=kernel['package_version'],
                              server_id=srv['id'],
-                             cve_entries=self.cve_entries(kernel))
+                             cve_entries=cve_entries(kernel))
             self.create_exception(body)
+
+    @staticmethod
+    def cve_entries(kernel):
+        cves = []
+        for cve_entry in kernel['cve_entries']:
+            cves.append(cve_entry['cve_entry'])
+        return cves
