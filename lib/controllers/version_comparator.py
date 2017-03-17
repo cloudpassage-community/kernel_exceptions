@@ -23,28 +23,33 @@ class VersionComparator(object):
         return nums
 
     @staticmethod
-    def mark_sets(a, b):
-        if len(a) > len(b):
-            return {'primary': b, 'secondary': a}
+    def insert_zeroes(data, size):
+        data.extend([0] * size)
+        return data
+
+    def equalize_lengths(self, a, b):
+        len_a = len(a)
+        len_b = len(b)
+        if len_a == len_b:
+            return a, b
+        elif len_a > len_b:
+            b = self.insert_zeroes(b, len_a - len_b)
+            return a, b
         else:
-            return {'primary': a, 'secondary': b}
+            a = self.insert_zeroes(a, len_b - len_a)
+            return a, b
 
     def cut(self, s):
         s = self.remove_arch(s)
         return re.split('\.|-', s)
 
-    def merge_comparison(self, a, b):
-        sets = self.mark_sets(a, b)
-        results = []
-        for i in sets['primary']:
-            j = sets['secondary'][sets['primary'].index(i)]
+    def partition_comparison(self, a, b):
+        a, b = self.equalize_lengths(a, b)
+        for i in a:
+            j = b[a.index(i)]
             if i != j:
-                results.append(int(i) > int(j))
-
-        if results:
-            return True
-        else:
-            return False
+                return int(i) > int(j)
+        return False
 
     def compare(self, a, b):
         evr_a = self.evr(a)
@@ -52,7 +57,7 @@ class VersionComparator(object):
         a = self.normalize(self.cut(a))
         b = self.normalize(self.cut(b))
         if not evr_a or not evr_b:
-            return self.merge_comparison(a, b)
+            return self.partition_comparison(a, b)
         if evr_a == evr_b:
-            return self.merge_comparison(a, b)
+            return self.partition_comparison(a, b)
         return evr_a > evr_b

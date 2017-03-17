@@ -11,6 +11,9 @@ class TestVersionComparator:
     def test_compare(self):
         vc = self.create_version_comp_obj()
         assert vc.compare('3.100.0-514.el7.x86_64', '3.12.el7')
-        assert vc.compare('3.10.0-514.el7', '3.10.0-514.el7.x86_64') == False
         assert vc.compare('3.18.0-514.el7.x86_64', '3.10.0-514.el7')
         assert vc.compare('3.18.0-514.el8.x86_64', '3.10.0-514.el7')
+        assert vc.compare('3.10.0-514.el7', '3.10.0-514.el7.x86_64') == False
+        assert vc.compare('3.12.el7', '3.100.0-514.el7.x86_64') == False
+        assert vc.compare('3.10.0-514.el7', '3.18.0-514.el7.x86_64') == False
+        assert vc.compare('3.10.0-514.el7', '3.18.0-514.el8.x86_64') == False
