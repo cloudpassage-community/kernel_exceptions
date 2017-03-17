@@ -27,12 +27,12 @@ class KernelExceptions(object):
             if extra_kernels:
                 total.append(extra_kernels)
                 if self.options['execute']:
-                    Reporter.report(srv, extra_kernels, srv_v2['kernel_release'])
+                    Reporter().report(srv, extra_kernels, srv_v2['kernel_release'])
                     if not self.sc.version_compare(installed_kernels, srv_v2['kernel_release']):
-                        self.ec.add_exceptions(srv, extra_kernels)
+                        # self.ec.add_exceptions(srv, extra_kernels)
                         print 'Exceptions for non-running vulnerable kernel packages are added.'
                 else:
-                    Reporter.report(srv, extra_kernels, srv_v2['kernel_release'])
+                    Reporter().report(srv, extra_kernels, srv_v2['kernel_release'])
         if not total:
             print 'No servers with more than one Kernel package has been found'
 
