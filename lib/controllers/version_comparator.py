@@ -8,9 +8,12 @@ class VersionComparator(object):
 
     @staticmethod
     def evr(s):
-        found = re.search('el\d+', s)
-        if found:
-            return found.group(0)
+        found_el = re.search('el\d+', s)
+        found_fc = re.search('fc\d+', s)
+        if found_el:
+            return found_el.group(0)
+        elif found_fc:
+            return found_fc.group(0)
 
     @staticmethod
     def normalize(version):
@@ -22,33 +25,17 @@ class VersionComparator(object):
                 pass
         return nums
 
-    @staticmethod
-    def insert_zeroes(data, size):
-        data.extend([0] * size)
-        return data
-
-    def equalize_lengths(self, a, b):
-        len_a = len(a)
-        len_b = len(b)
-        if len_a == len_b:
-            return a, b
-        elif len_a > len_b:
-            b = self.insert_zeroes(b, len_a - len_b)
-            return a, b
-        else:
-            a = self.insert_zeroes(a, len_b - len_a)
-            return a, b
-
     def cut(self, s):
         s = self.remove_arch(s)
         return re.split('\.|-', s)
 
     def partition_comparison(self, a, b):
-        a, b = self.equalize_lengths(a, b)
-        for i in a:
-            j = b[a.index(i)]
-            if i != j:
-                return int(i) > int(j)
+        for i in range(len(a)):
+            try:
+                if (a[i] - b[i]) > 0:
+                    return a[i] > b[i]
+            except IndexError:
+                return True
         return False
 
     def compare(self, a, b):
