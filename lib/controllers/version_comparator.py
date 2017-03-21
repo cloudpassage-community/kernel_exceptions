@@ -3,59 +3,31 @@ import re
 
 class VersionComparator(object):
     @staticmethod
-    def remove_arch(s):
-        return s.replace('.x86_64', '')
-
-    @staticmethod
     def evr(s):
-        found = re.search('el\d+', s)
-        if found:
-            return found.group(0)
-
-    @staticmethod
-    def normalize(version):
-        nums = []
-        for v in version:
-            try:
-                nums.append(int(v))
-            except:
-                pass
-        return nums
-
-    @staticmethod
-    def insert_zeroes(data, size):
-        data.extend([0] * size)
-        return data
-
-    def equalize_lengths(self, a, b):
-        len_a = len(a)
-        len_b = len(b)
-        if len_a == len_b:
-            return a, b
-        elif len_a > len_b:
-            b = self.insert_zeroes(b, len_a - len_b)
-            return a, b
-        else:
-            a = self.insert_zeroes(a, len_b - len_a)
-            return a, b
+        found_el = re.search('el\d+', s)
+        found_fc = re.search('fc\d+', s)
+        if found_el:
+            return found_el.group(0)
+        elif found_fc:
+            return found_fc.group(0)
 
     def cut(self, s):
-        s = self.remove_arch(s)
-        return re.split('\.|-', s)
+        return re.split('\.|-', re.split('.[a-z]', s)[0])
 
     def partition_comparison(self, a, b):
-        a, b = self.equalize_lengths(a, b)
-        for i in a:
-            j = b[a.index(i)]
-            if i != j:
-                return int(i) > int(j)
+        for i in range(len(a)):
+            try:
+                if (int(a[i]) - int(b[i])) > 0:
+                    return int(a[i]) > int(b[i])
+            except IndexError:
+                return True
         return False
 
     def compare(self, a, b):
         evr_a = self.evr(a)
         evr_b = self.evr(b)
-        a = self.normalize(self.cut(a))
-        b = self.normalize(self.cut(b))
+        a = self.cut(a)
+        b = self.cut(b)
         if not evr_a or not evr_b:
             return self.partition_comparison(a, b)
         if evr_a == evr_b:
