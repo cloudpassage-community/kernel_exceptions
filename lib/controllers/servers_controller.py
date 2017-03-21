@@ -14,10 +14,11 @@ class ServersController(object):
     def installed_kernels(self, server_id):
         found = []
         vulns = self.api.get("/v1/servers/%s/svm" % server_id)
-        for vuln in vulns['scan']['findings']:
-            match = re.search('^[kK]ernel(\.|$)', vuln['package_name'])
-            if match:
-                found.append(vuln)
+        if 'scan' in vulns:
+            for vuln in vulns['scan']['findings']:
+                match = re.search('^[kK]ernel(\.|$)', vuln['package_name'])
+                if match:
+                    found.append(vuln)
         return found
 
     def version_compare(self, kernels, running_kernel):
