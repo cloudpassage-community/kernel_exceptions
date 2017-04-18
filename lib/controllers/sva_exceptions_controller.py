@@ -35,5 +35,5 @@ class ExceptionsController(object):
             body = self.form(package_name=kernel['package_name'],
                              package_version=kernel['package_version'],
                              server_id=srv['id'],
-                             cve_entries=server_cves(kernel))
+                             cve_entries=self.server_cves(kernel))
             self.create_exception(body)
